@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-const (
-	NumParallelJobs int = 100
-)
-
 var lock sync.Mutex
 var allDone bool
 
@@ -51,7 +47,6 @@ func (pq *PriorityQueue) Pop() any {
 	return item
 }
 
-
 // update modifies the priority and value of an Item in the queue.
 func (pq *PriorityQueue) update(task *Task, name string, start int64, delay int64) {
 	task.name = name
@@ -67,7 +62,7 @@ func Run() {
 	wg := new(sync.WaitGroup)
 	wg.Add(1)
 	go Producer(pq, wg)
-	for i:=0; i<100; i++ {
+	for i:=0; i<5; i++ {
 		wg.Add(1)
 		go Consumer(pq, wg)
 	}
@@ -82,7 +77,6 @@ func Producer(pq *PriorityQueue, wg *sync.WaitGroup) {
 			"cmd"+strconv.Itoa(i), []string{}, time.Now().Unix(), int64(10-1*i),
 		))
 		lock.Unlock()
-		time.Sleep(10*time.Second)
 	}
 	allDone = true
 }
@@ -105,7 +99,8 @@ func Consumer(pq *PriorityQueue, wg *sync.WaitGroup) {
 			continue
 		}
 		item := heap.Pop(pq).(*Task)
-		fmt.Println(item.name + " " + strconv.FormatInt(item.start + item.delay, 10) + " " + strconv.FormatInt(time.Now().Unix(), 10) + "\n")
 		lock.Unlock()
+		fmt.Println(item.name + " " + strconv.FormatInt(item.start + item.delay, 10) + " " + strconv.FormatInt(time.Now().Unix(), 10) + "\n")
+		time.Sleep(10*time.Second)
 	}
 }
