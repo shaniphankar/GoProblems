@@ -92,7 +92,7 @@ func Producer(pq *Schedule, wg *sync.WaitGroup) {
     heap.Push(pq, NewJob("cmd"+strconv.Itoa(i), time.Now().Unix(), (int64(i*1000))))
 		cond.Signal()
 	}
-	cond.Broadcast()
+	// cond.Broadcast()
 	allDone=true
 }
 
